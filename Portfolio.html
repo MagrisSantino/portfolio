@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Santino Magris — QA Automation Engineer</title>
+<meta name="description" content="Santino Magris — QA Automation Engineer. Cypress, Selenium, Python, CI/CD. Based in Córdoba, Argentina. Open to remote roles.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: oklch(0.16 0.012 240);
+    --bg-1: oklch(0.195 0.014 240);
+    --bg-2: oklch(0.22 0.016 240);
+    --line: oklch(0.3 0.018 240 / 0.5);
+    --line-strong: oklch(0.38 0.02 240 / 0.7);
+    --fg: oklch(0.96 0.005 240);
+    --fg-dim: oklch(0.78 0.01 240);
+    --fg-mute: oklch(0.6 0.012 240);
+    --accent: oklch(0.88 0.19 130);
+    --accent-dim: oklch(0.78 0.17 130);
+    --accent-soft: oklch(0.88 0.19 130 / 0.12);
+    --fail: oklch(0.72 0.18 25);
+    --warn: oklch(0.82 0.16 75);
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    --radius: 14px;
+    --maxw: 1180px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a { color: inherit; text-decoration: none; }
+
+  /* Ambient noise / grain */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle at 20% 10%, oklch(0.88 0.19 130 / 0.08), transparent 45%),
+                      radial-gradient(circle at 85% 85%, oklch(0.6 0.12 260 / 0.06), transparent 45%);
+    z-index: 0;
+  }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px);
+    background: oklch(0.16 0.012 240 / 0.7);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s ease, background .3s ease;
+  }
+  .nav.scrolled { border-bottom-color: var(--line); }
+  .nav-inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+  }
+  .brand {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .brand-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px oklch(0.88 0.19 130 / 0.18);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 4px oklch(0.88 0.19 130 / 0.18); }
+    50% { box-shadow: 0 0 0 6px oklch(0.88 0.19 130 / 0.05); }
+  }
+  .nav-links { display: flex; gap: 28px; font-size: 13.5px; color: var(--fg-dim); }
+  .nav-links a { transition: color .2s; }
+  .nav-links a:hover { color: var(--fg); }
+  .nav-links .num { font-family: var(--mono); color: var(--accent); font-size: 11px; margin-right: 6px; }
+  .nav-cta {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    padding: 9px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    color: var(--fg);
+    transition: all .2s;
+  }
+  .nav-cta:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 14px; }
+  .lang-toggle {
+    display: inline-flex;
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 3px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .lang-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--fg-mute);
+    padding: 5px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .18s ease;
+    font: inherit;
+  }
+  .lang-toggle button:hover { color: var(--fg); }
+  .lang-toggle button.active {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  @media (max-width: 720px) {
+    .nav-links { display: none; }
+    .nav-cta { display: none; }
+  }
+
+  /* ---------- Layout ---------- */
+  main { position: relative; z-index: 1; }
+  section {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 120px 28px 60px;
+    position: relative;
+  }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+  }
+  .section-label::before {
+    content: ''; width: 22px; height: 1px; background: var(--accent);
+  }
+  .section-h {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 12px;
+  }
+  .section-sub {
+    color: var(--fg-mute);
+    font-size: 15px;
+    max-width: 560px;
+    margin: 0 0 48px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    padding-top: 120px;
+    padding-bottom: 80px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 56px;
+    align-items: center;
+  }
+  @media (max-width: 880px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+  }
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--fg-mute);
+    margin-bottom: 22px;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .hero h1 {
+    font-size: clamp(44px, 7vw, 80px);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    margin: 0 0 18px;
+  }
+  .hero h1 .accent {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.78em;
+    display: block;
+    letter-spacing: -0.02em;
+    margin-top: 8px;
+  }
+  .hero-value {
+    font-size: 18px;
+    color: var(--fg-dim);
+    max-width: 520px;
+    margin: 0 0 36px;
+    line-height: 1.5;
+  }
+  .hero-value strong { color: var(--fg); font-weight: 600; }
+  .hero-cta {
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 20px;
+    border-radius: 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all .2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .btn-primary:hover {
+    background: var(--accent-dim);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px oklch(0.88 0.19 130 / 0.22);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--fg);
+    border-color: var(--line-strong);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn svg { width: 14px; height: 14px; }
+
+  /* Hero terminal */
+  .terminal {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 13px;
+    box-shadow: 0 30px 60px -20px oklch(0 0 0 / 0.6);
+  }
+  .term-head {
+    display: flex; align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+    gap: 10px;
+  }
+  .term-dots { display: flex; gap: 6px; }
+  .term-dots span {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: oklch(0.35 0.02 240);
+  }
+  .term-title {
+    font-size: 11.5px;
+    color: var(--fg-mute);
+    margin-left: 8px;
+  }
+  .term-body {
+    padding: 18px 18px 22px;
+    line-height: 1.7;
+    min-height: 280px;
+  }
+  .term-line { white-space: pre-wrap; }
+  .term-prompt { color: var(--accent); }
+  .term-cmd { color: var(--fg); }
+  .term-dim { color: var(--fg-mute); }
+  .term-pass { color: var(--accent); font-weight: 600; }
+  .term-fail { color: var(--fail); font-weight: 600; }
+  .term-info { color: oklch(0.75 0.1 230); }
+  .term-key { color: oklch(0.85 0.12 60); }
+  .caret {
+    display: inline-block;
+    width: 8px; height: 15px;
+    background: var(--accent);
+    vertical-align: -2px;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- About ---------- */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 56px;
+    align-items: start;
+  }
+  @media (max-width: 880px) {
+    .about-grid { grid-template-columns: 1fr; gap: 36px; }
+  }
+  .about-text p {
+    font-size: 17px;
+    color: var(--fg-dim);
+    line-height: 1.65;
+    margin: 0 0 18px;
+  }
+  .about-text p strong { color: var(--fg); font-weight: 600; }
+  .about-card {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .about-card dl { margin: 0; }
+  .about-card dt {
+    color: var(--fg-mute);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 16px;
+  }
+  .about-card dt:first-of-type { margin-top: 0; }
+  .about-card dd {
+    margin: 4px 0 0;
+    color: var(--fg);
+  }
+  .about-card dd .accent { color: var(--accent); }
+
+  /* ---------- Skills as test suite ---------- */
+  .suite {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  .suite-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .suite-head .title { color: var(--fg); font-weight: 600; }
+  .suite-head .stats { color: var(--fg-mute); font-size: 12px; }
+  .suite-head .stats b { color: var(--accent); font-weight: 600; }
+  .describe { padding: 14px 20px; border-bottom: 1px dashed var(--line); }
+  .describe:last-child { border-bottom: none; }
+  .describe-title {
+    color: var(--fg);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .describe-title .kw { color: oklch(0.75 0.12 300); }
+  .describe-title .name { color: var(--fg); }
+  .it-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 4px 18px;
+    padding-left: 14px;
+  }
+  .it {
+    display: flex; align-items: center; gap: 10px;
+    padding: 5px 0;
+    color: var(--fg-dim);
+    font-size: 13px;
+    transition: color .15s;
+  }
+  .it:hover { color: var(--fg); }
+  .check {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: oklch(0.88 0.19 130 / 0.15);
+    color: var(--accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .check svg { width: 9px; height: 9px; stroke-width: 3; }
+  .it .ms {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--fg-mute);
+  }
+
+  /* ---------- Experience ---------- */
+  .timeline {
+    position: relative;
+    padding-left: 24px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), var(--line) 20%, var(--line));
+  }
+  .tl-item {
+    position: relative;
+    padding-bottom: 42px;
+  }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -24px; top: 10px;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+  .tl-item.current::before {
+    box-shadow: 0 0 0 4px oklch(0.88 0.19 130 / 0.12);
+  }
+  .tl-card {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    transition: all .25s ease;
+  }
+  .tl-card:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-2px);
+  }
+  .tl-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 16px; flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+  .tl-role {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .tl-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--fg-mute);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tl-meta .current-pill {
+    color: var(--accent);
+    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tl-meta .current-pill::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .tl-co {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .tl-co .loc { color: var(--fg-mute); }
+  .tl-list {
+    margin: 0; padding: 0; list-style: none;
+  }
+  .tl-list li {
+    position: relative;
+    padding-left: 18px;
+    color: var(--fg-dim);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .tl-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--accent);
+    font-size: 11px;
+  }
+  .tl-list li:last-child { margin-bottom: 0; }
+
+  /* ---------- Projects ---------- */
+  .proj-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .proj {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px;
+    display: flex; flex-direction: column;
+    transition: all .25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .proj::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(400px at var(--mx, 50%) var(--my, 50%), oklch(0.88 0.19 130 / 0.06), transparent 40%);
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+  }
+  .proj:hover::after { opacity: 1; }
+  .proj:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-3px);
+  }
+  .proj-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+  .proj-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 16px; font-weight: 600;
+  }
+  .proj-link {
+    color: var(--fg-mute);
+    transition: color .2s, transform .2s;
+  }
+  .proj-link:hover { color: var(--accent); transform: translate(2px, -2px); }
+  .proj-link svg { width: 18px; height: 18px; }
+  .proj-name {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: -0.015em;
+    margin: 0 0 8px;
+    position: relative; z-index: 1;
+  }
+  .proj-desc {
+    color: var(--fg-dim);
+    font-size: 14.5px;
+    line-height: 1.55;
+    margin: 0 0 20px;
+    flex-grow: 1;
+    position: relative; z-index: 1;
+  }
+  .proj-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    position: relative; z-index: 1;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    background: var(--bg-2);
+    color: var(--fg-dim);
+    border: 1px solid var(--line);
+  }
+
+  /* ---------- Certifications ---------- */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .cert {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex; gap: 14px; align-items: flex-start;
+    transition: all .2s;
+  }
+  .cert:hover {
+    border-color: var(--line-strong);
+    background: var(--bg-2);
+  }
+  .cert-mark {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+  .cert-body h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--fg);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .cert-body p {
+    font-size: 13px;
+    color: var(--fg-mute);
+    margin: 0;
+    font-family: var(--mono);
+  }
+
+  /* ---------- Contact ---------- */
+  .contact-box {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 48px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-box::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at center, oklch(0.88 0.19 130 / 0.06), transparent 40%);
+    pointer-events: none;
+  }
+  .contact-h {
+    font-size: clamp(26px, 3.5vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 10px;
+    position: relative;
+  }
+  .contact-h .accent { color: var(--accent); }
+  .contact-sub {
+    color: var(--fg-dim);
+    font-size: 15.5px;
+    max-width: 480px;
+    margin: 0 auto 32px;
+    position: relative;
+  }
+  .contact-links {
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+    position: relative;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 80px;
+    padding: 32px 28px;
+    color: var(--fg-mute);
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: center;
+  }
+  footer .line { max-width: var(--maxw); margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a:hover { color: var(--accent); }
+
+  /* ---------- Scroll reveal ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal[data-delay="1"] { transition-delay: .08s; }
+  .reveal[data-delay="2"] { transition-delay: .16s; }
+  .reveal[data-delay="3"] { transition-delay: .24s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <span class="brand-dot"></span>
+      <span>santino.magris</span>
+    </a>
+    <div class="nav-links">
+      <a href="#about"><span class="num">01.</span><span data-i18n="nav.about">About</span></a>
+      <a href="#skills"><span class="num">02.</span><span data-i18n="nav.skills">Skills</span></a>
+      <a href="#experience"><span class="num">03.</span><span data-i18n="nav.experience">Experience</span></a>
+      <a href="#projects"><span class="num">04.</span><span data-i18n="nav.projects">Projects</span></a>
+      <a href="#contact"><span class="num">05.</span><span data-i18n="nav.contact">Contact</span></a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" data-lang="en" class="active">EN</button>
+        <button type="button" data-lang="es">ES</button>
+      </div>
+      <a href="#contact" class="nav-cta" data-i18n="nav.cta">Get in touch →</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-tag reveal">
+        <span class="status-dot"></span>
+        <span data-i18n="hero.status">Available for remote · Córdoba, AR (UTC−3)</span>
+      </div>
+      <h1 class="reveal" data-delay="1">
+        Santino Magris.
+        <span class="accent" data-i18n="hero.role">// qa automation engineer</span>
+      </h1>
+      <p class="hero-value reveal" data-delay="2" data-i18n-html="hero.value">
+        I build <strong>end-to-end test automation</strong> for mission-critical
+        telecom systems — Cypress, Selenium, Python, and CI/CD pipelines
+        that keep billing and recharge flows green across three countries.
+      </p>
+      <div class="hero-cta reveal" data-delay="3">
+        <a href="#contact" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 4l8 8 8-8"/></svg>
+          <span data-i18n="hero.contact">Contact me</span>
+        </a>
+        <a href="mailto:santinomagris1@gmail.com?subject=Opportunity" class="btn btn-ghost" id="cvBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="hero.cv">Download CV</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Terminal -->
+    <div class="terminal reveal" data-delay="2" aria-hidden="true">
+      <div class="term-head">
+        <div class="term-dots"><span></span><span></span><span></span></div>
+        <span class="term-title">~/santino — cypress run</span>
+      </div>
+      <div class="term-body" id="term"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="section-label reveal"><span data-i18n="about.label">01 — About</span></div>
+  <h2 class="section-h reveal" data-i18n="about.h">Quality is a discipline, not a checklist.</h2>
+
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p data-i18n-html="about.p1">
+        I'm a QA Engineer with <strong>3+ years</strong> of experience in manual and automated
+        testing for mission-critical systems in the telecom industry. I'm currently
+        working remotely at <strong>EPAM Systems</strong> for <strong>Claro</strong> — one of Latin America's
+        largest telecom operators — covering multi-country systems across Argentina,
+        Paraguay, and Uruguay.
+      </p>
+      <p data-i18n-html="about.p2">
+        I care about test architecture that scales: Page Object Model, Cucumber BDD,
+        clean CI pipelines, and the kind of coverage that lets a migration ship without
+        a 3AM rollback. I work daily in English with offshore teams, so defect triage
+        and alignment across time zones is part of the routine.
+      </p>
+      <p data-i18n-html="about.p3">
+        Alongside my QA work, I co-founded <strong>Valsys Software</strong>, a studio where I lead
+        technical strategy and quality processes. I'm graduating in Information Systems
+        Engineering in December 2026.
+      </p>
+    </div>
+
+    <aside class="about-card reveal" data-delay="1">
+      <dl>
+        <dt data-i18n="about.status">Status</dt>
+        <dd data-i18n-html="about.status_v"><span class="accent">●</span> Open to remote roles</dd>
+        <dt data-i18n="about.based">Based in</dt>
+        <dd data-i18n="about.based_v">Córdoba, Argentina (UTC−3)</dd>
+        <dt data-i18n="about.langs">Languages</dt>
+        <dd data-i18n="about.langs_v">Spanish · English (professional)</dd>
+        <dt data-i18n="about.focus">Focus</dt>
+        <dd data-i18n="about.focus_v">E2E · API · DB validation</dd>
+        <dt data-i18n="about.xp">Years of XP</dt>
+        <dd>3+</dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ SKILLS ============ -->
+<section id="skills">
+  <div class="section-label reveal"><span data-i18n="skills.label">02 — Skills</span></div>
+  <h2 class="section-h reveal" data-i18n="skills.h">The stack, as a passing suite.</h2>
+  <p class="section-sub reveal" data-i18n="skills.sub">Every tool below has shipped code in production. No shelfware.</p>
+
+  <div class="suite reveal">
+    <div class="suite-head">
+      <span class="title">skills.spec.ts</span>
+      <span class="stats"><b id="suiteCount">24</b> <span data-i18n="skills.passing">passing</span> <span style="opacity:.4">·</span> 0 <span data-i18n="skills.failing">failing</span> <span style="opacity:.4">·</span> <span data-i18n="skills.exec">executed in</span> <b>0.42s</b></span>
+    </div>
+
+    <div class="describe">
+      <div class="describe-title"><span class="kw">describe</span>(<span class="name">'<span data-i18n="skills.g1">Automation</span>'</span>)</div>
+      <div class="it-list" id="skills-automation"></div>
+    </div>
+    <div class="describe">
+      <div class="describe-title"><span class="kw">describe</span>(<span class="name">'<span data-i18n="skills.g2">API Testing</span>'</span>)</div>
+      <div class="it-list" id="skills-api"></div>
+    </div>
+    <div class="describe">
+      <div class="describe-title"><span class="kw">describe</span>(<span class="name">'<span data-i18n="skills.g3">Databases</span>'</span>)</div>
+      <div class="it-list" id="skills-db"></div>
+    </div>
+    <div class="describe">
+      <div class="describe-title"><span class="kw">describe</span>(<span class="name">'<span data-i18n="skills.g4">CI/CD &amp; Version Control</span>'</span>)</div>
+      <div class="it-list" id="skills-cicd"></div>
+    </div>
+    <div class="describe">
+      <div class="describe-title"><span class="kw">describe</span>(<span class="name">'<span data-i18n="skills.g5">Methodologies</span>'</span>)</div>
+      <div class="it-list" id="skills-meth"></div>
+    </div>
+    <div class="describe">
+      <div class="describe-title"><span class="kw">describe</span>(<span class="name">'<span data-i18n="skills.g6">Tools</span>'</span>)</div>
+      <div class="it-list" id="skills-tools"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXPERIENCE ============ -->
+<section id="experience">
+  <div class="section-label reveal"><span data-i18n="xp.label">03 — Experience</span></div>
+  <h2 class="section-h reveal" data-i18n="xp.h">Where I've shipped quality.</h2>
+
+  <div class="timeline">
+    <div class="tl-item current reveal">
+      <div class="tl-card">
+        <div class="tl-head">
+          <div class="tl-role" data-i18n="xp.r1">QA Engineer</div>
+          <div class="tl-meta"><span class="current-pill" data-i18n="xp.current">Current</span> <span data-i18n="xp.d1">Jun 2024 — Present</span></div>
+        </div>
+        <div class="tl-co">EPAM Systems <span class="loc" data-i18n="xp.co1">— Client: Claro · Córdoba, Argentina</span></div>
+        <ul class="tl-list">
+          <li data-i18n-html="xp.b1a">Built and maintained end-to-end test automation frameworks using <b>Cypress (JS/TS)</b> and <b>Selenium (Python)</b>, applying Cucumber BDD and Page Object Model patterns.</li>
+          <li data-i18n-html="xp.b1b">Performed comprehensive testing across web, REST APIs, and SQL databases for systems managing mobile recharge and billing operations across <b>Argentina, Paraguay, and Uruguay</b>.</li>
+          <li data-i18n-html="xp.b1c">Managed and created CI/CD pipelines in <b>Jenkins</b> for automated test execution and deployment across environments.</li>
+          <li data-i18n-html="xp.b1d">Played a key QA role during a major platform upgrade delivered by vendor Comviva, coordinating regression and acceptance testing across three countries.</li>
+          <li data-i18n-html="xp.b1e">Currently supporting QA for a full system migration project in Paraguay — responsible for validating functional and data integrity across environments.</li>
+          <li data-i18n-html="xp.b1f">Communicate daily in English with offshore development teams (India) to report and triage defects.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tl-item current reveal">
+      <div class="tl-card">
+        <div class="tl-head">
+          <div class="tl-role" data-i18n="xp.r2">Founder &amp; Software Engineer</div>
+          <div class="tl-meta"><span class="current-pill" data-i18n="xp.current2">Current</span> <span data-i18n="xp.d2">Mar 2026 — Present</span></div>
+        </div>
+        <div class="tl-co">Valsys Software <span class="loc" data-i18n="xp.co2">— Córdoba, Argentina</span></div>
+        <ul class="tl-list">
+          <li data-i18n="xp.b2a">Co-founded a software development studio focused on building custom software solutions.</li>
+          <li data-i18n="xp.b2b">Responsible for technical strategy, system architecture, and quality assurance processes.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-card">
+        <div class="tl-head">
+          <div class="tl-role" data-i18n="xp.r3">QA Tester</div>
+          <div class="tl-meta"><span data-i18n="xp.d3">Sep 2023 — May 2024</span></div>
+        </div>
+        <div class="tl-co">Vates Software <span class="loc" data-i18n="xp.co3">— Córdoba, Argentina</span></div>
+        <ul class="tl-list">
+          <li data-i18n="xp.b3a">Executed functional manual and automated testing under Agile/Scrum methodologies.</li>
+          <li data-i18n="xp.b3b">Completed internal training in Functional Testing, SQL, PL/SQL, Python, and Automated Testing — applied directly in project work.</li>
+          <li data-i18n="xp.b3c">First exposure to CI/CD pipelines (Jenkins) and automation tooling.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJECTS ============ -->
+<section id="projects">
+  <div class="section-label reveal"><span data-i18n="proj.label">04 — Selected Work</span></div>
+  <h2 class="section-h reveal" data-i18n="proj.h">Projects &amp; repositories.</h2>
+  <p class="section-sub reveal" data-i18n="proj.sub">A handful of things I've built, maintained, or led.</p>
+
+  <div class="proj-grid">
+    <article class="proj reveal">
+      <div class="proj-head">
+        <div class="proj-icon">VS</div>
+        <span class="proj-link" style="font-family:var(--mono);font-size:11px;color:var(--accent)" data-i18n="proj.active">ACTIVE</span>
+      </div>
+      <h3 class="proj-name">Valsys Software</h3>
+      <p class="proj-desc" data-i18n="proj.valsys">
+        Co-founded studio shipping custom software for local clients.
+        I lead technical strategy, system architecture, and the QA
+        playbook we apply to every engagement — from test planning to
+        release gates.
+      </p>
+      <div class="proj-tags">
+        <span class="tag" data-i18n="proj.tag.arch">Architecture</span>
+        <span class="tag" data-i18n="proj.tag.qap">QA Process</span>
+        <span class="tag" data-i18n="proj.tag.lead">Leadership</span>
+      </div>
+    </article>
+
+    <article class="proj reveal" data-delay="1">
+      <div class="proj-head">
+        <div class="proj-icon">CL</div>
+        <span class="proj-link" style="font-family:var(--mono);font-size:11px;color:var(--fg-mute)" data-i18n="proj.client">CLIENT</span>
+      </div>
+      <h3 class="proj-name" data-i18n="proj.claro">Claro Multi-Country QA</h3>
+      <p class="proj-desc" data-i18n="proj.claro_d">
+        End-to-end test suites for mobile recharge &amp; billing systems serving
+        Argentina, Paraguay, and Uruguay. Cypress + Selenium frameworks, REST
+        API coverage, SQL validation, and Jenkins pipelines orchestrating
+        regression across three environments.
+      </p>
+      <div class="proj-tags">
+        <span class="tag">Cypress</span>
+        <span class="tag">Selenium</span>
+        <span class="tag">Jenkins</span>
+        <span class="tag">SQL</span>
+        <span class="tag">Cucumber</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ CERTIFICATIONS ============ -->
+<section id="certs">
+  <div class="section-label reveal"><span data-i18n="cert.label">05 — Certifications</span></div>
+  <h2 class="section-h reveal" data-i18n="cert.h">Courses &amp; credentials.</h2>
+
+  <div class="cert-grid">
+    <div class="cert reveal">
+      <div class="cert-mark">2023</div>
+      <div class="cert-body">
+        <h4 data-i18n="cert.c1">Automated Testing with Python</h4>
+        <p>IES Siglo 21 · Selenium, JMeter, Postman</p>
+      </div>
+    </div>
+    <div class="cert reveal" data-delay="1">
+      <div class="cert-mark">2023</div>
+      <div class="cert-body">
+        <h4 data-i18n="cert.c2">Python — Object Oriented Programming</h4>
+        <p>IES Siglo 21</p>
+      </div>
+    </div>
+    <div class="cert reveal" data-delay="2">
+      <div class="cert-mark">2023</div>
+      <div class="cert-body">
+        <h4 data-i18n="cert.c3">Functional Testing</h4>
+        <p>Vates · Scrum, Trello</p>
+      </div>
+    </div>
+    <div class="cert reveal" data-delay="3">
+      <div class="cert-mark">2023</div>
+      <div class="cert-body">
+        <h4 data-i18n="cert.c4">SQL and PL/SQL</h4>
+        <p>Vates</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px" class="cert reveal">
+    <div class="cert-mark">EDU</div>
+    <div class="cert-body">
+      <h4 data-i18n="cert.edu">Information Systems Engineering</h4>
+      <p data-i18n="cert.edu_v">Universidad Tecnológica Nacional — FRC · 2021 — 2026 (graduating Dec 2026)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact">
+  <div class="section-label reveal"><span data-i18n="contact.label">06 — Contact</span></div>
+
+  <div class="contact-box reveal">
+    <h2 class="contact-h" data-i18n-html="contact.h">Let's make something <span class="accent">stable.</span></h2>
+    <p class="contact-sub" data-i18n="contact.sub">
+      Looking for a QA Engineer who can own automation end-to-end and ship quality
+      in an async, remote-first team? Let's talk.
+    </p>
+    <div class="contact-links">
+      <a href="mailto:santinomagris1@gmail.com" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        santinomagris1@gmail.com
+      </a>
+      <a href="https://linkedin.com/in/santinomagris" target="_blank" rel="noopener" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.27V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+        LinkedIn
+      </a>
+      <a href="tel:+543515556657" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        +54 351 555 6657
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="line">
+    <span data-i18n="footer.l">© 2026 Santino Magris — Built from scratch, tested thoroughly.</span>
+    <span><span style="color:var(--accent)">●</span> <span data-i18n="footer.r">All systems operational</span></span>
+  </div>
+</footer>
+
+<script>
+  // ---------- Nav scroll state ----------
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // ---------- Scroll reveal ----------
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ---------- Terminal animation ----------
+  const term = document.getElementById('term');
+  const termLines = {
+    en: [
+      { t: 'prompt', text: '$ ', cmd: 'npx cypress run --spec portfolio.cy.ts' },
+      { t: 'blank' },
+      { t: 'dim', text: '  Running:  portfolio.cy.ts' },
+      { t: 'blank' },
+      { t: 'dim', text: '  ┌─ Santino Magris' },
+      { t: 'pass', text: '  │  ✓ QA Engineer @ EPAM / Claro' },
+      { t: 'pass', text: '  │  ✓ 3+ years · telecom · multi-country' },
+      { t: 'pass', text: '  │  ✓ Cypress · Selenium · Python · SQL' },
+      { t: 'pass', text: '  │  ✓ CI/CD with Jenkins' },
+      { t: 'pass', text: '  │  ✓ Remote-ready · English · UTC−3' },
+      { t: 'dim', text: '  └─' },
+      { t: 'blank' },
+      { t: 'info', text: '  5 passing · 0 failing · 0 pending' },
+      { t: 'key', text: '  available for remote opportunities →' },
+    ],
+    es: [
+      { t: 'prompt', text: '$ ', cmd: 'npx cypress run --spec portfolio.cy.ts' },
+      { t: 'blank' },
+      { t: 'dim', text: '  Ejecutando:  portfolio.cy.ts' },
+      { t: 'blank' },
+      { t: 'dim', text: '  ┌─ Santino Magris' },
+      { t: 'pass', text: '  │  ✓ QA Engineer @ EPAM / Claro' },
+      { t: 'pass', text: '  │  ✓ Más de 3 años · telecomunicaciones · multi-país' },
+      { t: 'pass', text: '  │  ✓ Cypress · Selenium · Python · SQL' },
+      { t: 'pass', text: '  │  ✓ CI/CD con Jenkins' },
+      { t: 'pass', text: '  │  ✓ Listo para trabajo remoto · Inglés · UTC−3' },
+      { t: 'dim', text: '  └─' },
+      { t: 'blank' },
+      { t: 'info', text: '  5 passing · 0 failing · 0 pending' },
+      { t: 'key', text: '  disponible para oportunidades remotas →' },
+    ]
+  };
+  let lines = termLines.en;
+  let li = 0, charI = 0, termGen = 0;
+  function typeNext(gen) {
+    if (gen !== termGen) return;
+    if (li >= lines.length) {
+      const caret = document.createElement('span');
+      caret.className = 'caret';
+      term.appendChild(caret);
+      return;
+    }
+    const l = lines[li];
+    if (l.t === 'blank') {
+      term.appendChild(document.createElement('br'));
+      li++; charI = 0;
+      setTimeout(() => typeNext(gen), 60);
+      return;
+    }
+    let div = term.lastElementChild;
+    if (!div || !div.classList || !div.classList.contains('term-line') || div.dataset.idx != li) {
+      div = document.createElement('div');
+      div.className = 'term-line';
+      div.dataset.idx = li;
+      term.appendChild(div);
+    }
+
+    if (l.t === 'prompt') {
+      const full = l.text + (l.cmd || '');
+      if (charI === 0) div.innerHTML = '<span class="term-prompt">$</span> <span class="term-cmd"></span>';
+      const cmdSpan = div.querySelector('.term-cmd');
+      const cmdText = l.cmd.slice(0, charI);
+      cmdSpan.textContent = cmdText;
+      charI++;
+      if (charI > l.cmd.length) { li++; charI = 0; setTimeout(() => typeNext(gen), 260); }
+      else setTimeout(() => typeNext(gen), 28 + Math.random() * 40);
+      return;
+    }
+
+    const classes = { pass: 'term-pass', fail: 'term-fail', dim: 'term-dim', info: 'term-info', key: 'term-key' };
+    div.className = 'term-line ' + (classes[l.t] || '');
+    if (charI < l.text.length) {
+      div.textContent = l.text.slice(0, charI + 1);
+      charI++;
+      const delay = l.t === 'pass' ? 8 : 12;
+      setTimeout(() => typeNext(gen), delay);
+    } else {
+      li++; charI = 0;
+      const pause = l.t === 'pass' ? 60 : 140;
+      setTimeout(() => typeNext(gen), pause);
+    }
+  }
+  // Kick off after a short beat so the hero text settles
+  setTimeout(() => typeNext(termGen), 550);
+
+  // ---------- Project card cursor glow ----------
+  document.querySelectorAll('.proj').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  // ---------- i18n ----------
+  const I18N = {
+    en: {
+      'nav.about': 'About', 'nav.skills': 'Skills', 'nav.experience': 'Experience',
+      'nav.projects': 'Projects', 'nav.contact': 'Contact', 'nav.cta': 'Get in touch →',
+      'hero.status': 'Available for remote · Córdoba, AR (UTC−3)',
+      'hero.role': '// qa automation engineer',
+      'hero.value': 'I build <strong>end-to-end test automation</strong> for mission-critical telecom systems — Cypress, Selenium, Python, and CI/CD pipelines that keep billing and recharge flows green across three countries.',
+      'hero.contact': 'Contact me', 'hero.cv': 'Download CV',
+      'about.label': '01 — About',
+      'about.h': 'Quality is a discipline, not a checklist.',
+      'about.p1': "I'm a QA Engineer with <strong>3+ years</strong> of experience in manual and automated testing for mission-critical systems in the telecom industry. I'm currently working remotely at <strong>EPAM Systems</strong> for <strong>Claro</strong> — one of Latin America's largest telecom operators — covering multi-country systems across Argentina, Paraguay, and Uruguay.",
+      'about.p2': 'I care about test architecture that scales: Page Object Model, Cucumber BDD, clean CI pipelines, and the kind of coverage that lets a migration ship without a 3AM rollback. I work daily in English with offshore teams, so defect triage and alignment across time zones is part of the routine.',
+      'about.p3': "Alongside my QA work, I co-founded <strong>Valsys Software</strong>, a studio where I lead technical strategy and quality processes. I'm graduating in Information Systems Engineering in December 2026.",
+      'about.status': 'Status', 'about.status_v': '<span class="accent">●</span> Open to remote roles',
+      'about.based': 'Based in', 'about.based_v': 'Córdoba, Argentina (UTC−3)',
+      'about.langs': 'Languages', 'about.langs_v': 'Spanish · English (professional)',
+      'about.focus': 'Focus', 'about.focus_v': 'E2E · API · DB validation',
+      'about.xp': 'Years of XP',
+      'skills.label': '02 — Skills',
+      'skills.h': 'The stack, as a passing suite.',
+      'skills.sub': 'Every tool below has shipped code in production. No shelfware.',
+      'skills.passing': 'passing', 'skills.failing': 'failing', 'skills.exec': 'executed in',
+      'skills.g1': 'Automation', 'skills.g2': 'API Testing', 'skills.g3': 'Databases',
+      'skills.g4': 'CI/CD & Version Control', 'skills.g5': 'Methodologies', 'skills.g6': 'Tools',
+      'xp.label': '03 — Experience', 'xp.h': "Where I've shipped quality.",
+      'xp.current': 'Current', 'xp.current2': 'Current',
+      'xp.r1': 'QA Engineer', 'xp.d1': 'Jun 2024 — Present',
+      'xp.co1': '— Client: Claro · Córdoba, Argentina',
+      'xp.b1a': 'Built and maintained end-to-end test automation frameworks using <b>Cypress (JS/TS)</b> and <b>Selenium (Python)</b>, applying Cucumber BDD and Page Object Model patterns.',
+      'xp.b1b': 'Performed comprehensive testing across web, REST APIs, and SQL databases for systems managing mobile recharge and billing operations across <b>Argentina, Paraguay, and Uruguay</b>.',
+      'xp.b1c': 'Managed and created CI/CD pipelines in <b>Jenkins</b> for automated test execution and deployment across environments.',
+      'xp.b1d': 'Played a key QA role during a major platform upgrade delivered by vendor Comviva, coordinating regression and acceptance testing across three countries.',
+      'xp.b1e': 'Currently supporting QA for a full system migration project in Paraguay — responsible for validating functional and data integrity across environments.',
+      'xp.b1f': 'Communicate daily in English with offshore development teams (India) to report and triage defects.',
+      'xp.r2': 'Founder & Software Engineer', 'xp.d2': 'Mar 2026 — Present', 'xp.co2': '— Córdoba, Argentina',
+      'xp.b2a': 'Co-founded a software development studio focused on building custom software solutions.',
+      'xp.b2b': 'Responsible for technical strategy, system architecture, and quality assurance processes.',
+      'xp.r3': 'QA Tester', 'xp.d3': 'Sep 2023 — May 2024', 'xp.co3': '— Córdoba, Argentina',
+      'xp.b3a': 'Executed functional manual and automated testing under Agile/Scrum methodologies.',
+      'xp.b3b': 'Completed internal training in Functional Testing, SQL, PL/SQL, Python, and Automated Testing — applied directly in project work.',
+      'xp.b3c': 'First exposure to CI/CD pipelines (Jenkins) and automation tooling.',
+      'proj.label': '04 — Selected Work', 'proj.h': 'Projects & repositories.',
+      'proj.sub': "A handful of things I've built, maintained, or led.",
+      'proj.active': 'ACTIVE', 'proj.client': 'CLIENT',
+      'proj.valsys': 'Co-founded studio shipping custom software for local clients. I lead technical strategy, system architecture, and the QA playbook we apply to every engagement — from test planning to release gates.',
+      'proj.tag.arch': 'Architecture', 'proj.tag.qap': 'QA Process', 'proj.tag.lead': 'Leadership',
+      'proj.claro': 'Claro Multi-Country QA',
+      'proj.claro_d': 'End-to-end test suites for mobile recharge & billing systems serving Argentina, Paraguay, and Uruguay. Cypress + Selenium frameworks, REST API coverage, SQL validation, and Jenkins pipelines orchestrating regression across three environments.',
+      'cert.label': '05 — Certifications', 'cert.h': 'Courses & credentials.',
+      'cert.c1': 'Automated Testing with Python', 'cert.c2': 'Python — Object Oriented Programming',
+      'cert.c3': 'Functional Testing', 'cert.c4': 'SQL and PL/SQL',
+      'cert.edu': 'Information Systems Engineering',
+      'cert.edu_v': 'Universidad Tecnológica Nacional — FRC · 2021 — 2026 (graduating Dec 2026)',
+      'contact.label': '06 — Contact',
+      'contact.h': "Let's make something <span class=\"accent\">stable.</span>",
+      'contact.sub': 'Looking for a QA Engineer who can own automation end-to-end and ship quality in an async, remote-first team? Let\'s talk.',
+      'footer.l': '© 2026 Santino Magris — Built from scratch, tested thoroughly.',
+      'footer.r': 'All systems operational',
+      '_title': 'Santino Magris — QA Automation Engineer'
+    },
+    es: {
+      'nav.about': 'Sobre mí', 'nav.skills': 'Skills', 'nav.experience': 'Experiencia',
+      'nav.projects': 'Proyectos', 'nav.contact': 'Contacto', 'nav.cta': 'Contactame →',
+      'hero.status': 'Disponible para trabajo remoto · Córdoba, AR (UTC−3)',
+      'hero.role': '// qa automation engineer',
+      'hero.value': 'Desarrollo <strong>automatización de pruebas end-to-end</strong> para sistemas críticos de telecomunicaciones — Cypress, Selenium, Python y pipelines de CI/CD que mantienen estables los flujos de facturación y recarga en tres países.',
+      'hero.contact': 'Contactame', 'hero.cv': 'Descargar CV',
+      'about.label': '01 — Sobre mí',
+      'about.h': 'La calidad es una disciplina, no una lista de tareas.',
+      'about.p1': 'Soy QA Engineer con <strong>más de 3 años</strong> de experiencia en testing manual y automatizado sobre sistemas críticos en la industria de las telecomunicaciones. Actualmente trabajo de forma remota en <strong>EPAM Systems</strong> para <strong>Claro</strong> — uno de los operadores de telecomunicaciones más grandes de Latinoamérica — cubriendo sistemas multi-país en Argentina, Paraguay y Uruguay.',
+      'about.p2': 'Me importa una arquitectura de testing que escale: Page Object Model, Cucumber BDD, pipelines de CI limpios y la cobertura que permite liberar una migración sin un rollback a las 3 de la mañana. He trabajado todos los días en inglés con equipos offshore, así que el análisis de defectos y la coordinación entre zonas horarias son parte de la rutina.',
+      'about.p3': 'En paralelo a mi trabajo en QA, cofundé <strong>Valsys Software</strong>, un estudio donde lidero la estrategia técnica y los procesos de calidad. Me recibo de Ingeniería en Sistemas de Información en diciembre de 2026.',
+      'about.status': 'Estado', 'about.status_v': '<span class="accent">●</span> Abierto a roles remotos',
+      'about.based': 'Ubicación', 'about.based_v': 'Córdoba, Argentina (UTC−3)',
+      'about.langs': 'Idiomas', 'about.langs_v': 'Español · Inglés (profesional)',
+      'about.focus': 'Enfoque', 'about.focus_v': 'E2E · APIs · Validación de bases de datos',
+      'about.xp': 'Años de experiencia',
+      'skills.label': '02 — Skills',
+      'skills.h': 'Mi stack técnico.',
+      'skills.sub': 'Cada herramienta de esta lista la he usado en proyectos reales de producción.',
+      'skills.passing': 'pasando', 'skills.failing': 'fallando', 'skills.exec': 'ejecutado en',
+      'skills.g1': 'Automatización', 'skills.g2': 'Testing de APIs', 'skills.g3': 'Bases de datos',
+      'skills.g4': 'CI/CD y control de versiones', 'skills.g5': 'Metodologías', 'skills.g6': 'Herramientas',
+      'xp.label': '03 — Experiencia', 'xp.h': 'Mi trayectoria profesional.',
+      'xp.current': 'Actual', 'xp.current2': 'Actual',
+      'xp.r1': 'QA Engineer', 'xp.d1': 'Jun 2024 — Presente',
+      'xp.co1': '— Cliente: Claro · Córdoba, Argentina',
+      'xp.b1a': 'Desarrollé y mantuve frameworks de automatización end-to-end con <b>Cypress (JS/TS)</b> y <b>Selenium (Python)</b>, aplicando patrones de Cucumber BDD y Page Object Model.',
+      'xp.b1b': 'Realicé testing integral sobre aplicaciones web, APIs REST y bases de datos SQL para sistemas de recarga móvil y facturación en <b>Argentina, Paraguay y Uruguay</b>.',
+      'xp.b1c': 'Administré y creé pipelines de CI/CD en <b>Jenkins</b> para la ejecución de pruebas y el despliegue automatizado entre entornos.',
+      'xp.b1d': 'Cumplí un rol clave en QA durante una actualización mayor de plataforma entregada por el proveedor Comviva, coordinando pruebas de regresión y aceptación en tres países.',
+      'xp.b1e': 'Actualmente apoyo el QA en un proyecto de migración completa en Paraguay, siendo responsable de validar la integridad funcional y de datos entre entornos.',
+      'xp.b1f': 'He mantenido comunicación diaria en inglés con equipos de desarrollo offshore (India) para reportar y analizar defectos.',
+      'xp.r2': 'Fundador y Software Engineer', 'xp.d2': 'Mar 2026 — Presente', 'xp.co2': '— Córdoba, Argentina',
+      'xp.b2a': 'Cofundé un estudio de desarrollo de software enfocado en soluciones a medida.',
+      'xp.b2b': 'Responsable de la estrategia técnica, la arquitectura de sistemas y los procesos de aseguramiento de la calidad.',
+      'xp.r3': 'QA Tester', 'xp.d3': 'Sep 2023 — May 2024', 'xp.co3': '— Córdoba, Argentina',
+      'xp.b3a': 'Ejecuté testing funcional manual y automatizado bajo metodologías Agile y Scrum.',
+      'xp.b3b': 'Completé capacitaciones internas en Testing Funcional, SQL, PL/SQL, Python y Testing Automatizado, aplicadas directamente en proyectos.',
+      'xp.b3c': 'Primer contacto con pipelines de CI/CD (Jenkins) y herramientas de automatización.',
+      'proj.label': '04 — Trabajo destacado', 'proj.h': 'Proyectos.',
+      'proj.sub': 'Algunos de los proyectos en los que trabajé, mantuve o lideré.',
+      'proj.active': 'ACTIVO', 'proj.client': 'CLIENTE',
+      'proj.valsys': 'Estudio que cofundé y que desarrolla software a medida para clientes locales. Lidero la estrategia técnica, la arquitectura de sistemas y el proceso de QA que aplicamos en cada proyecto, desde la planificación de pruebas hasta el despliegue.',
+      'proj.tag.arch': 'Arquitectura', 'proj.tag.qap': 'Proceso QA', 'proj.tag.lead': 'Liderazgo',
+      'proj.claro': 'Claro QA Multi-País',
+      'proj.claro_d': 'Suites de pruebas end-to-end para los sistemas de recarga móvil y facturación que operan en Argentina, Paraguay y Uruguay. Frameworks con Cypress y Selenium, cobertura de APIs REST, validación SQL y pipelines de Jenkins que orquestan la regresión en tres entornos.',
+      'cert.label': '05 — Certificaciones', 'cert.h': 'Cursos y credenciales.',
+      'cert.c1': 'Testing Automatizado con Python', 'cert.c2': 'Python — Programación Orientada a Objetos',
+      'cert.c3': 'Testing Funcional', 'cert.c4': 'SQL y PL/SQL',
+      'cert.edu': 'Ingeniería en Sistemas de Información',
+      'cert.edu_v': 'Universidad Tecnológica Nacional — FRC · 2021 — 2026 (me recibo en diciembre de 2026)',
+      'contact.label': '06 — Contacto',
+      'contact.h': 'Construyamos algo <span class="accent">sólido.</span>',
+      'contact.sub': '¿Buscás un QA Engineer que pueda liderar la automatización de punta a punta y asegurar la calidad en un equipo remoto y asincrónico? Hablemos.',
+      'footer.l': '© 2026 Santino Magris — Hecho desde cero, probado a fondo.',
+      'footer.r': 'Todos los sistemas operativos',
+      '_title': 'Santino Magris — QA Automation Engineer'
+    }
+  };
+
+  const SKILLS_I18N = {
+    en: {
+      'skills-automation': [['Cypress','18ms'],['Selenium','22ms'],['Cucumber / Gherkin','11ms'],['Page Object Model','9ms'],['JavaScript','14ms'],['TypeScript','15ms'],['Python','17ms']],
+      'skills-api': [['Postman','8ms'],['REST APIs','12ms']],
+      'skills-db': [['SQL','10ms'],['PL/SQL','13ms']],
+      'skills-cicd': [['Jenkins','19ms'],['Git','6ms'],['Bitbucket','7ms']],
+      'skills-meth': [['Agile / Scrum','5ms'],['Regression Testing','11ms'],['Integration Testing','10ms'],['UAT','8ms']],
+      'skills-tools': [['JIRA','4ms'],['VS Code','3ms'],['PyCharm','5ms']]
+    },
+    es: {
+      'skills-automation': [['Cypress','18ms'],['Selenium','22ms'],['Cucumber / Gherkin','11ms'],['Page Object Model','9ms'],['JavaScript','14ms'],['TypeScript','15ms'],['Python','17ms']],
+      'skills-api': [['Postman','8ms'],['REST APIs','12ms']],
+      'skills-db': [['SQL','10ms'],['PL/SQL','13ms']],
+      'skills-cicd': [['Jenkins','19ms'],['Git','6ms'],['Bitbucket','7ms']],
+      'skills-meth': [['Agile / Scrum','5ms'],['Testing de Regresión','11ms'],['Testing de Integración','10ms'],['UAT','8ms']],
+      'skills-tools': [['JIRA','4ms'],['VS Code','3ms'],['PyCharm','5ms']]
+    }
+  };
+
+  const checkSvg2 = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>';
+  function renderSkills(lang) {
+    let total = 0;
+    Object.entries(SKILLS_I18N[lang]).forEach(([id, items]) => {
+      const host = document.getElementById(id);
+      if (!host) return;
+      host.innerHTML = items.map(([name, ms]) => `
+        <div class="it"><span class="check">${checkSvg2}</span>${name}<span class="ms">${ms}</span></div>
+      `).join('');
+      total += items.length;
+    });
+    document.getElementById('suiteCount').textContent = total;
+  }
+
+  function setLang(lang) {
+    const dict = I18N[lang] || I18N.en;
+    document.documentElement.lang = lang;
+    document.title = dict._title;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      if (dict[k] !== undefined) el.textContent = dict[k];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const k = el.getAttribute('data-i18n-html');
+      if (dict[k] !== undefined) el.innerHTML = dict[k];
+    });
+    renderSkills(lang);
+    // restart terminal in the new language (invalidate any in-flight typer)
+    lines = termLines[lang];
+    termGen++;
+    term.innerHTML = '';
+    li = 0; charI = 0;
+    const myGen = termGen;
+    setTimeout(() => typeNext(myGen), 180);
+    // toggle button state
+    document.querySelectorAll('.lang-toggle button').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    try { localStorage.setItem('sm_lang', lang); } catch (e) {}
+  }
+
+  document.querySelectorAll('.lang-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => setLang(btn.dataset.lang));
+  });
+
+  let savedLang = 'en';
+  try { savedLang = localStorage.getItem('sm_lang') || 'en'; } catch (e) {}
+  if (savedLang === 'es') setLang('es');
+  else renderSkills('en'); // already EN, just ensure skills render
+</script>
+
+</body>
+</html>
